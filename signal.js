@@ -144,8 +144,7 @@ async function handleScreenshot(ctx) {
             photo.file_id
         );
 
-        const fileUrl = `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${file.file_path}`;
-
+        const fileUrl = `https://api.telegram.org/file/bot${config.BOT_TOKEN}/${file.file_path}`;
         // Loading Message
         const loading = await ctx.reply(
 
