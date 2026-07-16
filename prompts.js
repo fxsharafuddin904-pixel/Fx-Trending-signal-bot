@@ -49,3 +49,80 @@ const RESPONSE_FORMAT = `
   "analysis":"বাংলায় সংক্ষিপ্ত বিশ্লেষণ"
 }
 `;
+/* =========================================
+   BUILD GEMINI PROMPT
+========================================= */
+
+function buildPrompt(market, timeframe) {
+
+    return `
+${SYSTEM_PROMPT}
+
+========================================
+
+Market:
+${market}
+
+Timeframe:
+${timeframe} Minute
+
+========================================
+
+চার্টটি ভালোভাবে বিশ্লেষণ করুন।
+
+বিশ্লেষণের সময় নিচের বিষয়গুলো বিবেচনা করুন—
+
+• Trend Direction
+• Market Structure
+• Support & Resistance
+• Breakout / Fakeout
+• Candle Pattern
+• Bullish / Bearish Momentum
+• Entry Zone
+• Stop Loss
+• Take Profit
+• Risk Level
+
+========================================
+
+গুরুত্বপূর্ণ নিয়ম:
+
+১. Signal হবে শুধুমাত্র:
+BUY
+SELL
+NO TRADE
+
+২. Confidence হবে ০-১০০ এর মধ্যে সংখ্যা।
+
+৩. চার্ট পরিষ্কার না হলে NO TRADE দিন।
+
+৪. অনুমান করবেন না।
+
+৫. অতিরিক্ত লেখা লিখবেন না।
+
+৬. Markdown ব্যবহার করবেন না।
+
+৭. শুধুমাত্র JSON Return করবেন।
+
+========================================
+
+JSON Format
+
+${RESPONSE_FORMAT}
+`;
+
+}
+
+/* =========================================
+   EXPORTS
+========================================= */
+
+module.exports = {
+
+    SYSTEM_PROMPT,
+
+    RESPONSE_FORMAT,
+
+    buildPrompt
+
+};
