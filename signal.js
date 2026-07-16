@@ -141,11 +141,14 @@ async function handleScreenshot(ctx) {
         }
 
         // Telegram File Link
-        const file = await ctx.telegram.getFile(
-            photo.file_id
-        );
+const file = await ctx.telegram.getFile(photo.file_id);
 
-        const fileUrl = `https://api.telegram.org/file/bot${config.BOT_TOKEN}/${file.file_path}`;
+console.log("FILE:", file);
+console.log("FILE PATH:", file.file_path);
+
+const fileUrl = `https://api.telegram.org/file/bot${config.BOT_TOKEN}/${file.file_path}`;
+
+console.log("FILE URL:", fileUrl);;
         // Loading Message
         const loading = await ctx.reply(
 
