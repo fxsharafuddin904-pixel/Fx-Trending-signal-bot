@@ -1,3 +1,4 @@
+const config = require("./config");
 const { getSignal } = require("./gemini");
 
 const {
