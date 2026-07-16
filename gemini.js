@@ -175,7 +175,9 @@ console.log("URL:", GEMINI_URL);
 
     throw new Error("GEMINI_FAILED");
 
-}
+    }
+
+} // <-- এই ব্রেসটি নতুন যোগ করবেন
 /* =========================================
    PARSE GEMINI RESPONSE
 ========================================= */
