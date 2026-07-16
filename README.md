@@ -1,0 +1,1 @@
+# Fx-Trending-signal-bot
