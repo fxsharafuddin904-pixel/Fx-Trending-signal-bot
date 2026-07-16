@@ -123,6 +123,9 @@ async function analyzeChart(fileUrl, market, timeframe) {
             }
 
         };
+       console.log("Sending request...");
+console.log("API KEY:", config.GEMINI_API_KEY);
+console.log("URL:", GEMINI_URL);
 
         // Send Request
         const response = await axios.post(
