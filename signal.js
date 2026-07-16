@@ -104,3 +104,264 @@ async function saveMarket(ctx) {
     );
 
 }
+/* =========================================
+   HANDLE SCREENSHOT
+========================================= */
+
+async function handleScreenshot(ctx) {
+
+    try {
+
+        const user = getUser(ctx.from.id);
+
+        if (user.step !== "waiting_screenshot") {
+
+            return ctx.reply(
+                "❌ আগে Market নির্বাচন করুন।",
+                {
+                    parse_mode: "HTML",
+                    ...marketButtons()
+                }
+            );
+
+        }
+
+        const photo =
+            ctx.message.photo[
+                ctx.message.photo.length - 1
+            ];
+
+        if (!photo) {
+
+            return ctx.reply(
+                "❌ একটি Screenshot পাঠান।"
+            );
+
+        }
+
+        // Telegram File Link
+        const file = await ctx.telegram.getFile(
+            photo.file_id
+        );
+
+        const fileUrl = `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${file.file_path}`;
+
+        // Loading Message
+        const loading = await ctx.reply(
+
+`⏳ <b>চার্ট বিশ্লেষণ করা হচ্ছে...</b>
+
+━━━━━━━━━━━━━━━━━━
+
+🤖 Gemini AI আপনার চার্ট বিশ্লেষণ করছে।
+
+অনুগ্রহ করে অপেক্ষা করুন...`,
+
+            {
+                parse_mode: "HTML",
+                ...loadingButton()
+            }
+
+        );
+
+        // Gemini Analysis
+        const result = await getSignal(
+
+            fileUrl,
+
+            user.market,
+
+            user.timeframe
+
+        );
+
+        // Save Result
+        updateUser(ctx.from.id, {
+
+            step: "idle",
+
+            lastSignal: result
+
+        });
+
+        return {
+
+            loadingId: loading.message_id,
+
+            result,
+
+            user
+
+        };
+
+    } catch (error) {
+
+        console.log(error);
+
+        updateUser(ctx.from.id, {
+
+            step: "idle"
+
+        });
+
+        return ctx.reply(
+
+`❌ <b>বিশ্লেষণ সম্পন্ন করা যায়নি।</b>
+
+অনুগ্রহ করে আবার চেষ্টা করুন।`,
+
+            {
+
+                parse_mode: "HTML",
+
+                ...retryButton()
+
+            }
+
+        );
+
+    }
+
+}
+/* =========================================
+   SHOW SIGNAL RESULT
+========================================= */
+
+async function showSignalResult(ctx, data) {
+
+    const {
+        loadingId,
+        result,
+        user
+    } = data;
+
+    let keyboard = resultButtons();
+
+    if (result.signal === "NO TRADE") {
+        keyboard = noTradeButtons();
+    }
+
+    const message = `
+📊 <b>Premium Signal Report</b>
+
+━━━━━━━━━━━━━━━━━━
+
+📈 <b>Market</b>
+${user.market}
+
+⏱ <b>Timeframe</b>
+${user.timeframe} Minute
+
+━━━━━━━━━━━━━━━━━━
+
+🎯 <b>Signal</b>
+${result.signal}
+
+📊 <b>Confidence</b>
+${result.confidence}%
+
+💰 <b>Entry</b>
+${result.entry}
+
+🎯 <b>Take Profit</b>
+${result.take_profit}
+
+🛑 <b>Stop Loss</b>
+${result.stop_loss}
+
+━━━━━━━━━━━━━━━━━━
+
+📝 <b>Analysis</b>
+
+${result.analysis}
+
+━━━━━━━━━━━━━━━━━━
+
+⚠️ <i>এটি AI Analysis।
+নিজ দায়িত্বে Trade করুন।</i>
+`;
+
+    try {
+
+        return await ctx.telegram.editMessageText(
+
+            ctx.chat.id,
+
+            loadingId,
+
+            undefined,
+
+            message,
+
+            {
+
+                parse_mode: "HTML",
+
+                ...keyboard
+
+            }
+
+        );
+
+    } catch (error) {
+
+        return ctx.reply(message, {
+
+            parse_mode: "HTML",
+
+            ...keyboard
+
+        });
+
+    }
+
+}
+
+/* =========================================
+   REGISTER SIGNAL
+========================================= */
+
+function registerSignal(bot) {
+
+    // Open Market
+    bot.action(
+        "get_signal",
+        openMarketMenu
+    );
+
+    // Select Market
+    bot.action(
+        /^market_/,
+        saveMarket
+    );
+
+    // Receive Screenshot
+    bot.on("photo", async (ctx) => {
+
+        const data = await handleScreenshot(ctx);
+
+        if (!data || !data.result) return;
+
+        await showSignalResult(ctx, data);
+
+    });
+
+}
+
+/* =========================================
+   EXPORTS
+========================================= */
+
+module.exports = {
+
+    openMarketMenu,
+
+    saveMarket,
+
+    handleScreenshot,
+
+    showSignalResult,
+
+    registerSignal
+
+};
