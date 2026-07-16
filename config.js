@@ -1,6 +1,6 @@
 module.exports = {
   BOT_TOKEN: "8747004115:AAFCna-PeLWlEqEhGV5yjRpBwPGjyQD7fOA",
-  GEMINI_API_KEY: "AQ.Ab8RN6KhdBiRZIfrMxT1ou8mso1XYGLa-9QcHbCRsG77qMVU5w",
+  GEMINI_API_KEY: "AIzaSyDGZ8zlx8a8cLaGPxaM3fLKVuF7kVjXvok",
 
   BOT_NAME: "📈 AI Trading Signal Bot",
 
