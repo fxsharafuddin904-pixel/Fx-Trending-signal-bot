@@ -202,21 +202,23 @@ console.log("===============================");
 
 const result = JSON.parse(cleanText);
 
-            signal: result.signal || "NO TRADE",
+return {
 
-            confidence: Number(result.confidence) || 0,
+    signal: result.signal || "NO TRADE",
 
-            entry: result.entry || "-",
+    confidence: Number(result.confidence) || 0,
 
-            take_profit: result.take_profit || "-",
+    entry: result.entry || "-",
 
-            stop_loss: result.stop_loss || "-",
+    take_profit: result.take_profit || "-",
 
-            analysis:
-                result.analysis ||
-                "বিশ্লেষণ পাওয়া যায়নি।"
+    stop_loss: result.stop_loss || "-",
 
-        };
+    analysis:
+        result.analysis ||
+        "বিশ্লেষণ পাওয়া যায়নি।"
+
+};
 
     } catch (error) {
 
