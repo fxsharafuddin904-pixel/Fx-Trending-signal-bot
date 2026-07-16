@@ -192,13 +192,15 @@ function parseResponse(aiText) {
 
         // Remove Markdown JSON Block
         let cleanText = aiText
-            .replace(/```json/gi, "")
-            .replace(/```/g, "")
-            .trim();
+    .replace(/```json/gi, "")
+    .replace(/```/g, "")
+    .trim();
 
-        const result = JSON.parse(cleanText);
+console.log("===== GEMINI RAW RESPONSE =====");
+console.log(aiText);
+console.log("===============================");
 
-        return {
+const result = JSON.parse(cleanText);
 
             signal: result.signal || "NO TRADE",
 
