@@ -165,16 +165,17 @@ console.log("URL:", GEMINI_URL);
 
     } catch (error) {
 
-        console.log(
-            "Gemini Error:",
-            error.response?.data || error.message
-        );
+    console.log("========== GEMINI ERROR ==========");
+    console.log("Status:", error.response?.status);
+    console.log("Data:", JSON.stringify(error.response?.data, null, 2));
+    console.log("Message:", error.message);
+    console.log("API KEY:", config.GEMINI_API_KEY);
+    console.log("URL:", GEMINI_URL);
+    console.log("==================================");
 
-        throw new Error("GEMINI_FAILED");
+    throw new Error("GEMINI_FAILED");
 
-    }
-
-          }
+}
 /* =========================================
    PARSE GEMINI RESPONSE
 ========================================= */
