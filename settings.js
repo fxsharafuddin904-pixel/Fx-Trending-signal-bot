@@ -1,124 +1,142 @@
-const { settingsButtons, startButtons } = require("./buttons");
-const { getUser, updateUser } = require("./database");
+const {
+    settingsButtons,
+    startButtons
+} = require("./buttons");
 
-// ===============================
-// Settings Menu
-// ===============================
+const {
+    getUser,
+    updateUser
+} = require("./database");
+
+/* =========================================
+   OPEN SETTINGS MENU
+========================================= */
 
 async function openSettings(ctx) {
 
     const user = getUser(ctx.from.id);
 
-    await ctx.editMessageText(
-
-`⚙️ <b>Settings Panel</b>
-
-━━━━━━━━━━━━━━━━━━
-
-⏱ বর্তমান Timeframe
-
-<b>${user.timeframe} Minute</b>
+    const message = `
+⚙️ <b>Bot Settings</b>
 
 ━━━━━━━━━━━━━━━━━━
 
-নিচের বাটন থেকে নতুন একটি Timeframe নির্বাচন করুন।`,
+⏱ <b>Current Timeframe</b>
 
-        {
+${user.timeframe} Minute
+
+━━━━━━━━━━━━━━━━━━
+
+📌 আপনার ট্রেডিংয়ের জন্য একটি Timeframe নির্বাচন করুন।
+
+নির্বাচিত Timeframe ভবিষ্যতের সকল Signal-এর জন্য ব্যবহার করা হবে।
+`;
+
+    if (ctx.callbackQuery) {
+
+        return ctx.editMessageText(message, {
             parse_mode: "HTML",
             ...settingsButtons()
-        }
+        });
 
-    );
+    }
 
-}
-
-
-
-// ===============================
-// Save Timeframe
-// ===============================
-
-async function saveTimeframe(ctx, timeframe) {
-
-    updateUser(ctx.from.id, {
-
-        timeframe: timeframe
-
+    return ctx.reply(message, {
+        parse_mode: "HTML",
+        ...settingsButtons()
     });
 
-    await ctx.answerCbQuery(
-        `✅ ${timeframe} Minute Selected`
-    );
+}
+/* =========================================
+   SAVE TIMEFRAME
+========================================= */
 
-    await ctx.editMessageText(
+async function saveTimeframe(ctx) {
 
-`✅ <b>Settings Updated</b>
+    try {
+
+        const timeframe = Number(
+            ctx.callbackQuery.data.split("_")[1]
+        );
+
+        updateUser(ctx.from.id, {
+
+            timeframe: timeframe
+
+        });
+
+        await ctx.answerCbQuery(
+            `✅ ${timeframe} Minute নির্বাচন করা হয়েছে`
+        );
+
+        const message = `
+✅ <b>Settings Updated</b>
 
 ━━━━━━━━━━━━━━━━━━
 
-⏱ নতুন Timeframe
+⏱ <b>Current Timeframe</b>
 
-<b>${timeframe} Minute</b>
+${timeframe} Minute
 
 ━━━━━━━━━━━━━━━━━━
 
-আপনার সেটিং সফলভাবে সংরক্ষণ করা হয়েছে।`,
+আপনার Timeframe সফলভাবে সংরক্ষণ করা হয়েছে।
 
-        {
+এখন এই Timeframe ব্যবহার করে Signal তৈরি করা হবে।
+`;
+
+        return ctx.editMessageText(message, {
+
             parse_mode: "HTML",
             ...settingsButtons()
+
+        });
+
+    } catch (error) {
+
+        console.log(error);
+
+        return ctx.answerCbQuery(
+            "❌ কিছু সমস্যা হয়েছে!"
+        );
+
+    }
+
         }
-
-    );
-
-}
-
-
-
-// ===============================
-// Back Home
-// ===============================
+/* =========================================
+   BACK TO HOME
+========================================= */
 
 async function backHome(ctx) {
 
-    await ctx.editMessageText(
-
-`👋 <b>স্বাগতম</b>
-
-📈 <b>AI Trading Signal Bot</b>
+    const message = `
+🏠 <b>AI Trading Signal Bot</b>
 
 ━━━━━━━━━━━━━━━━━━
 
-Gemini AI আপনার চার্ট বিশ্লেষণ করবে এবং Premium Trading Report প্রদান করবে।
+🤖 Gemini Vision AI দ্বারা আপনার Trading Chart বিশ্লেষণ করা হবে।
 
-নিচের একটি অপশন নির্বাচন করুন।`,
+নিচের একটি অপশন নির্বাচন করুন।
 
-        {
+📈 Get Signal
+⚙️ Settings
+`;
+
+    try {
+
+        return ctx.editMessageText(message, {
+
             parse_mode: "HTML",
             ...startButtons()
-        }
 
-    );
+        });
 
-}
+    } catch (err) {
 
+        return ctx.reply(message, {
 
-
-// ===============================
-// Register All Callback
-// ===============================
-
-function registerSettings(bot) {
-
-    bot.action("settings", openSettings);
-
-    bot.action("back_home", backHome);
-
-    for (let i = 1; i <= 5; i++) {
-
-        bot.action(`tf_${i}`, (ctx) => {
-
-            return saveTimeframe(ctx, i);
+            parse_mode: "HTML",
+            ...startButtons()
 
         });
 
@@ -126,7 +144,34 @@ function registerSettings(bot) {
 
 }
 
+/* =========================================
+   REGISTER SETTINGS CALLBACKS
+========================================= */
+
+function registerSettings(bot) {
+
+    // Open Settings
+    bot.action("settings", openSettings);
+
+    // Back Home
+    bot.action("home", backHome);
+
+    // Timeframe Buttons
+    bot.action(/^tf_(\d+)$/, saveTimeframe);
+
+}
+
+/* =========================================
+   EXPORTS
+========================================= */
+
 module.exports = {
+
+    openSettings,
+
+    saveTimeframe,
+
+    backHome,
 
     registerSettings
 
